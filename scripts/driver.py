@@ -19,23 +19,23 @@ class Tracer:
     colored = False
 
     traceDict = {
-        1: "trace-01-ops",
-        2: "trace-02-ops",
+        # 1: "trace-01-ops",
+        # 2: "trace-02-ops",
         3: "trace-03-ops",
-        4: "trace-04-ops",
-        5: "trace-05-ops",
-        6: "trace-06-ops",
-        7: "trace-07-string",
-        8: "trace-08-robust",
-        9: "trace-09-robust",
-        10: "trace-10-robust",
-        11: "trace-11-malloc",
-        12: "trace-12-malloc",
-        13: "trace-13-malloc",
-        14: "trace-14-perf",
-        15: "trace-15-perf",
-        16: "trace-16-perf",
-        17: "trace-17-complexity"
+        # 4: "trace-04-ops",
+        # 5: "trace-05-ops",
+        # 6: "trace-06-ops",
+        # 7: "trace-07-string",
+        # 8: "trace-08-robust",
+        # 9: "trace-09-robust",
+        # 10: "trace-10-robust",
+        # 11: "trace-11-malloc",
+        # 12: "trace-12-malloc",
+        # 13: "trace-13-malloc",
+        # 14: "trace-14-perf",
+        # 15: "trace-15-perf",
+        # 16: "trace-16-perf",
+        # 17: "trace-17-complexity"
     }
 
     traceProbs = {
