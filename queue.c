@@ -153,8 +153,66 @@ void q_reverseK(struct list_head *head, int k)
     // https://leetcode.com/problems/reverse-nodes-in-k-group/
 }
 
+struct list_head *list_middle(struct list_head *head)
+{
+    if (list_empty(head)) {
+        return NULL;
+    }
+    struct list_head *fast = head->next, *slow = head->next;
+    while (fast != head && fast->next != head) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    return slow;
+}
+
 /* Sort elements of queue in ascending/descending order */
-void q_sort(struct list_head *head, bool descend) {}
+void q_sort(struct list_head *head, bool descend)
+{
+    if (list_empty(head) || list_is_singular(head)) {
+        return;
+    }
+    /* compute the pivot element */
+    element_t *pivot_elem = NULL;
+    {
+        element_t *first_elem = list_first_entry(head, element_t, list);
+        element_t *mid_elem = list_entry(list_middle(head), element_t, list);
+        element_t *last_elem = list_last_entry(head, element_t, list);
+        if (strcmp(last_elem->value, first_elem->value) >= 0) {
+            pivot_elem =
+                strcmp(first_elem->value, mid_elem->value) >= 0  ? first_elem
+                : strcmp(mid_elem->value, last_elem->value) >= 0 ? last_elem
+                                                                 : mid_elem;
+        } else {
+            pivot_elem =
+                strcmp(last_elem->value, mid_elem->value) >= 0    ? last_elem
+                : strcmp(mid_elem->value, first_elem->value) >= 0 ? first_elem
+                                                                  : mid_elem;
+        }
+    }
+    LIST_HEAD(left);
+    LIST_HEAD(right);
+    list_del(&pivot_elem->list);
+
+    element_t *elem, *safe;
+    list_for_each_entry_safe (elem, safe, head, list) {
+        list_del(&elem->list);
+        int rc = strcmp(elem->value, pivot_elem->value);
+        list_add_tail(&elem->list, ((rc >= 0) ? &right : &left));
+    }
+    q_sort(&left, descend);
+    q_sort(&right, descend);
+    /* merge */
+    if (descend) {
+        list_splice_tail(&right, head);
+        list_add_tail(&pivot_elem->list, head);
+        list_splice_tail(&left, head);
+    } else {
+        list_splice_tail(&left, head);
+        list_add_tail(&pivot_elem->list, head);
+        list_splice_tail(&right, head);
+    }
+}
 
 /* Remove every node which has a node with a strictly less value anywhere to
  * the right side of it */
