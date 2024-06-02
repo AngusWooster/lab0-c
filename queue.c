@@ -145,7 +145,15 @@ void q_swap(struct list_head *head)
 }
 
 /* Reverse elements in queue */
-void q_reverse(struct list_head *head) {}
+void q_reverse(struct list_head *head)
+{
+    LIST_HEAD(tmp);
+    struct list_head *node, *safe;
+    list_for_each_safe (node, safe, head) {
+        list_move(node, &tmp);
+    }
+    list_splice(&tmp, head);
+}
 
 /* Reverse the nodes of the list k at a time */
 void q_reverseK(struct list_head *head, int k)
@@ -235,5 +243,55 @@ int q_descend(struct list_head *head)
 int q_merge(struct list_head *head, bool descend)
 {
     // https://leetcode.com/problems/merge-k-sorted-lists/
-    return 0;
+    LIST_HEAD(merged_head);
+    int len = 0;
+
+    while (1) {
+        bool is_finish = true;
+        queue_contex_t *candidate = NULL;
+        queue_contex_t *current = NULL;
+        list_for_each_entry (current, head, chain) {
+            struct list_head *curr_head = current->q;
+            if (!list_empty(curr_head)) {
+                is_finish = false;
+                if (candidate == NULL) {
+                    candidate = current;
+                } else {
+                    /* default ascending order */
+                    struct list_head *candidate_head = candidate->q;
+                    int rc = strcmp(
+                        list_entry(candidate_head->next, element_t, list)
+                            ->value,
+                        list_entry(curr_head->next, element_t, list)->value);
+                    if (rc > 0) {
+                        candidate = current;
+                    }
+                }
+            }
+        }
+
+        if (is_finish) {
+            break;
+        }
+        struct list_head *candidate_head = candidate->q;
+        list_move_tail(candidate_head->next, &merged_head);
+        candidate->size--;
+        len++;
+    }
+
+    if (descend) {
+        q_reverse(&merged_head);
+    }
+#if 0 /* debug */
+    element_t *elem;
+    printf("merged: ");
+    list_for_each_entry(elem, &merged_head, list) {
+        printf("%s, ", elem->value);
+    }
+    printf("\n");
+#endif
+    queue_contex_t *first = list_first_entry(head, queue_contex_t, chain);
+    list_splice(&merged_head, first->q);
+    first->size = len;
+    return len;
 }
