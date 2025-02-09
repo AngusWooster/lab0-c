@@ -22,6 +22,13 @@ struct list_head *q_new()
 /* Free all storage used by queue */
 void q_free(struct list_head *head)
 {
+    while (!list_empty(head)) {
+        struct list_head *node = head->next;
+        list_del_init(node);
+        element_t *elem = list_entry(node, element_t, list);
+        free(elem->value);
+        free(elem);
+    }
     free(head);
 }
 
@@ -133,6 +140,22 @@ bool q_delete_dup(struct list_head *head)
 void q_swap(struct list_head *head)
 {
     // https://leetcode.com/problems/swap-nodes-in-pairs/
+    LIST_HEAD(new_head);
+    struct list_head *node = head->next;
+    while (node != head && node->next != head) {
+        struct list_head *prev = node;
+        struct list_head *next = node->next;
+        node = next->next;
+        list_del(prev);
+        list_del(next);
+        list_add_tail(next, &new_head);
+        list_add_tail(prev, &new_head);
+    }
+    if (node != head) {
+        list_del(node);
+        list_add_tail(node, &new_head);
+    }
+    list_splice_tail(&new_head, head);
 }
 
 /* Reverse elements in queue */
