@@ -20,7 +20,7 @@ struct list_head *q_new()
 }
 
 /* Free all storage used by queue */
-void q_free(struct list_head *head)
+void _q_nodes_free(struct list_head *head)
 {
     while (!list_empty(head)) {
         struct list_head *node = head->next;
@@ -29,6 +29,11 @@ void q_free(struct list_head *head)
         free(elem->value);
         free(elem);
     }
+}
+
+void q_free(struct list_head *head)
+{
+    _q_nodes_free(head);
     free(head);
 }
 
@@ -133,6 +138,35 @@ bool q_delete_mid(struct list_head *head)
 bool q_delete_dup(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
+    LIST_HEAD(duplicated_head);
+    struct list_head *cur_node = head->next;
+
+    while (cur_node != head && cur_node->next != head) {
+        struct list_head *node = cur_node->next;
+        element_t *cur_elem = list_entry(cur_node, element_t, list);
+        element_t *elem = list_entry(node, element_t, list);
+
+        if (strcmp(cur_elem->value, elem->value) == 0) {
+            struct list_head *next = node->next;
+            list_move(cur_node, &duplicated_head);
+            list_move(node, &duplicated_head);
+            node = next;
+            while (node != head) {
+                elem = list_entry(node, element_t, list);
+                if (strcmp(cur_elem->value, elem->value) == 0) {
+                    next = node->next;
+                    list_move(node, &duplicated_head);
+                    node = next;
+                } else {
+                    break;
+                }
+            }
+            cur_node = node;
+        } else {
+            cur_node = cur_node->next;
+        }
+    }
+    _q_nodes_free(&duplicated_head);
     return true;
 }
 
@@ -262,7 +296,24 @@ int q_ascend(struct list_head *head)
 int q_descend(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
-    return 0;
+    LIST_HEAD(removed_head);
+    q_reverse(head);
+
+    struct list_head *cur_node = head->next;
+    while (!list_empty(head) && cur_node->next != head) {
+        struct list_head *node = cur_node->next;
+
+        element_t *cur_elem = list_entry(cur_node, element_t, list);
+        element_t *elem = list_entry(node, element_t, list);
+        if (strcmp(cur_elem->value, elem->value) >= 0) {
+            list_move_tail(node, &removed_head);
+        } else {
+            cur_node = node;
+        }
+    }
+    _q_nodes_free(&removed_head);
+    q_reverse(head);
+    return q_size(head);
 }
 
 /* Merge all the queues into one sorted queue, which is in ascending/descending
