@@ -20,7 +20,7 @@ struct list_head *q_new()
 }
 
 /* Free all storage used by queue */
-void _q_nodes_free(struct list_head *head)
+static void _q_nodes_free(struct list_head *head)
 {
     while (!list_empty(head)) {
         struct list_head *node = head->next;
@@ -38,7 +38,7 @@ void q_free(struct list_head *head)
 }
 
 /* Insert an element at head of queue */
-element_t *_elem_create(char *s)
+static element_t *_elem_create(char *s)
 {
     int size = strlen(s) + 1;
     element_t *elem = malloc(sizeof(element_t));
@@ -84,6 +84,7 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
     }
     element_t *elem = list_first_entry(head, element_t, list);
     strncpy(sp, elem->value, bufsize);
+    sp[bufsize - 1] = '\0';
     list_del_init(head->next);
     return elem;
 }
@@ -243,7 +244,7 @@ split:
     1
 */
 
-inline int list_middle_size(int list_size)
+static int list_middle_size(int list_size)
 {
     return list_size / 2 + (list_size & 1);
 }
@@ -258,10 +259,10 @@ struct list_head *list_middle(struct list_head *head, int list_size)
     return node;
 }
 
-void _q_merge(struct list_head *h1,
-              struct list_head *h2,
-              struct list_head *merged_head,
-              bool descend)
+static void _q_merge(struct list_head *h1,
+                     struct list_head *h2,
+                     struct list_head *merged_head,
+                     bool descend)
 {
     while (!list_empty(h1) && !list_empty(h2)) {
         element_t *left_elem = list_first_entry(h1, element_t, list);
@@ -278,7 +279,7 @@ void _q_merge(struct list_head *h1,
     list_splice_tail_init(!list_empty(h1) ? h1 : h2, merged_head);
 }
 
-void _q_sort(struct list_head *head, bool descend, int list_size)
+static void _q_sort(struct list_head *head, bool descend, int list_size)
 {
     if (list_size == 0 || list_size == 1) {
         return;
