@@ -15,7 +15,8 @@
 struct list_head *q_new()
 {
     struct list_head *head = malloc(sizeof(struct list_head));
-    INIT_LIST_HEAD(head);
+    if (head)
+        INIT_LIST_HEAD(head);
     return head;
 }
 
@@ -33,6 +34,9 @@ static void _q_nodes_free(struct list_head *head)
 
 void q_free(struct list_head *head)
 {
+    if (head == NULL) {
+        return;
+    }
     _q_nodes_free(head);
     free(head);
 }
